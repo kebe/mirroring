@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Wizard - Spelling Game</title>
+  <!-- Import Vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <style>
+    /* Global styles */
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    
+    #app {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    header {
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #4b8bf4;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    h2 {
+      color: #ff7e67;
+      font-size: 1.5em;
+    }
+    
+    .game-container {
+      background-color: #f9f9f9;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Player Selection Component */
+    .player-selection {
+      padding: 20px;
+    }
+    
+    .players {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    .player-card {
+      cursor: pointer;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 120px;
+    }
+    
+    .player-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .player-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 40px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .aziz {
+      background-color: #4b8bf4;
+    }
+    
+    .ibby {
+      background-color: #ff7e67;
+    }
+    
+    /* Difficulty Selection Component */
+    .difficulty-selection {
+      padding: 20px;
+    }
+    
+    .difficulty-options {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    .difficulty-card {
+      cursor: pointer;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 150px;
+    }
+    
+    .difficulty-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .difficulty-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .easy {
+      background-color: #67c23a;
+    }
+    
+    .hard {
+      background-color: #f56c6c;
+    }
+    
+    /* Game Screen Component */
+    .game-screen {
+      padding: 20px;
+    }
+    
+    .game-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .audio-btn {
+      background-color: #4b8bf4;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 20px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .audio-btn:hover {
+      background-color: #3a7ad5;
+    }
+    
+    .word-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .letter-box {
+      width: 50px;
+      height: 50px;
+      background-color: white;
+      border: 2px solid #4b8bf4;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .letter-blank {
+      background-color: #e6f0ff;
+      border-color: #4b8bf4;
+      border-style: dashed;
+    }
+    
+    .letter-filled {
+      background-color: #c5e1ff;
+      border-color: #4b8bf4;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .letter-filled:hover {
+      background-color: #a8d1ff;
+    }
+    
+    .letter-filled:hover::after {
+      content: '↺';
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background-color: #ff7e67;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .letter-fixed {
+      background-color: white;
+      border-color: #4b8bf4;
+    }
+    
+    .letter-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      max-width: 400px;
+    }
+    
+    .letter-option-btn {
+      width: 50px;
+      height: 50px;
+      background-color: #ff7e67;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    
+    .letter-option-btn:hover:not(:disabled) {
+      transform: scale(1.1);
+      background-color: #ff6a4f;
+    }
+    
+    .letter-option-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    
+    .game-controls {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .submit-btn, .next-btn, .reset-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .submit-btn {
+      background-color: #67c23a;
+      color: white;
+    }
+    
+    .submit-btn:hover:not(:disabled) {
+      background-color: #5cb82c;
+    }
+    
+    .submit-btn:disabled {
+      background-color: #c8e2bb;
+      cursor: not-allowed;
+    }
+    
+    .next-btn {
+      background-color: #4b8bf4;
+      color: white;
+    }
+    
+    .next-btn:hover {
+      background-color: #3a7ad5;
+    }
+    
+    .reset-btn {
+      background-color: #f56c6c;
+      color: white;
+    }
+    
+    .reset-btn:hover {
+      background-color: #e64242;
+    }
+    
+    .feedback {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    
+    .correct {
+      color: #67c23a;
+    }
+    
+    .incorrect {
+      color: #f56c6c;
+    }
+    
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 40px 0;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #e6e6e6;
+      border-top: 5px solid #4b8bf4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .instruction-tip {
+      background-color: #fff9e6;
+      border-radius: 8px;
+      padding: 8px 15px;
+      margin: 5px 0;
+      border-left: 4px solid #ffd700;
+    }
+    
+    .instruction-tip p {
+      margin: 0;
+      font-size: 0.95em;
+      color: #996600;
+    }
+    
+    .progress-indicator {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    
+    /* Game Complete Component */
+    .game-complete {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .trophy {
+      font-size: 100px;
+      margin: 20px 0;
+      animation: bounce 2s infinite;
+    }
+    
+    .congratulation-message {
+      font-size: 1.3em;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #4b8bf4;
+    }
+    
+    .play-again-btn {
+      background-color: #67c23a;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 30px;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s, background-color 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .play-again-btn:hover {
+      transform: scale(1.05);
+      background-color: #5cb82c;
+    }
+    
+    .confetti-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--color);
+      opacity: var(--opacity);
+      transform: rotate(var(--rotation));
+      animation: fall var(--fall-duration) var(--fall-delay) linear forwards;
+    }
+    
+    @keyframes fall {
+      0% {
+        transform: translate(0, -50px) rotate(0deg);
+        opacity: var(--opacity);
+      }
+      100% {
+        transform: translate(var(--translate-x), var(--translate-y)) rotate(var(--rotation));
+        opacity: 0;
+      }
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-20px);
+      }
+      60% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    /* Scoreboard Component */
+    .scoreboard {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .scoreboard h3 {
+      margin: 0 0 10px;
+      color: #4b8bf4;
+    }
+    
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      font-size: 2em;
+    }
+    
+    .star {
+      color: #e0e0e0;
+      transition: color 0.3s;
+    }
+    
+    .filled {
+      color: #ffd700;
+    }
+    
+    /* Top Controls Bar */
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0 10px;
+    }
+    
+    /* Difficulty Badge */
+    .difficulty-badge {
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9em;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .difficulty-badge.easy {
+      background-color: #67c23a;
+    }
+    
+    .difficulty-badge.hard {
+      background-color: #f56c6c;
+    }
+    
+    /* Top Reset Button */
+    .top-reset-btn {
+      font-size: 0.9em;
+      padding: 8px 15px;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 500px) {
+      .letter-box {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+      
+      .letter-option-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Word Wizard</h1>
+      <h2>A Fun Spelling Adventure!</h2>
+    </header>
+    
+    <div class="game-container">
+      <!-- Player Selection Component -->
+      <div class="player-selection" v-if="!currentPlayer">
+        <h2>Who's playing today?</h2>
+        <div class="players">
+          <div class="player-card" @click="selectPlayer('Aziz')">
+            <div class="player-avatar aziz">A</div>
+            <h3>Aziz</h3>
+          </div>
+          <div class="player-card" @click="selectPlayer('Ibby')">
+            <div class="player-avatar ibby">I</div>
+            <h3>Ibby</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Difficulty Selection Component -->
+      <div class="difficulty-selection" v-else-if="!currentDifficulty">
+        <h2>Hi {{ currentPlayer }}! Choose your level:</h2>
+        <div class="difficulty-options">
+          <div class="difficulty-card" @click="selectDifficulty('easy')">
+            <div class="difficulty-icon easy">Easy</div>
+            <p>Simple Words</p>
+          </div>
+          <div class="difficulty-card" @click="selectDifficulty('hard')">
+            <div class="difficulty-icon hard">Hard</div>
+            <p>Difficult Words</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Game Screen Component -->
+      <div class="game-screen" v-else style="position: relative;">
+        <!-- Top Controls Bar - includes difficulty badge and change difficulty button -->
+        <div class="top-controls">
+          <!-- Difficulty Badge - Always visible during gameplay -->
+          <div 
+            class="difficulty-badge" 
+            :class="currentDifficulty"
+            v-if="currentDifficulty">
+            {{ getDifficultyLabel() }}
+          </div>
+          
+          <!-- Change Difficulty Button moved to top -->
+          <button @click="resetGame" class="reset-btn top-reset-btn" v-if="currentWord && !gameComplete">
+            Change Difficulty
+          </button>
+        </div>
+        
+        <h2>{{ gameMessage }}</h2>
+        
+        <div class="game-content" v-if="currentWord && !gameComplete">
+          <!-- Audio button to hear the word -->
+          <div class="word-audio">
+            <button @click="playWordAudio" class="audio-btn">
+              🔊 Hear the word
+            </button>
+          </div>
+          
+          <!-- Instruction for fixing mistakes -->
+          <div class="instruction-tip" v-if="hasFilled">
+            <p>If you made a mistake, click on a letter to change it!</p>
+          </div>
+          
+          <!-- Word with blanks -->
+          <div class="word-display">
+            <div 
+              v-for="(letter, index) in displayWord" 
+              :key="index" 
+              class="letter-box"
+              :class="{ 
+                'letter-blank': letter === '_',
+                'letter-filled': letter !== '_' && missingIndices.includes(index),
+                'letter-fixed': letter !== '_' && !missingIndices.includes(index)
+              }"
+              @click="removeLetter(index)"
+            >
+              {{ letter }}
+            </div>
+          </div>
+          
+          <!-- Letter options -->
+          <div class="letter-options">
+            <button 
+              v-for="(option, index) in letterOptions" 
+              :key="index"
+              @click="selectLetter(option)"
+              class="letter-option-btn"
+              :disabled="isLetterDisabled(option)"
+            >
+              {{ option }}
+            </button>
+          </div>
+          
+          <!-- Submit button -->
+          <div class="game-controls">
+            <button 
+              @click="checkAnswer" 
+              class="submit-btn"
+              :disabled="!isWordComplete"
+            >
+              Check Answer
+            </button>
+            
+            <button @click="nextWord" class="next-btn" v-if="showNextButton">
+              Next Word
+            </button>
+          </div>
+          
+          <!-- Feedback message -->
+          <div class="feedback" v-if="feedbackMessage">
+            <p :class="{ 'correct': isCorrect, 'incorrect': !isCorrect && feedbackMessage }">
+              {{ feedbackMessage }}
+            </p>
+          </div>
+          
+          <!-- Progress indicator -->
+          <div class="progress-indicator">
+            <p>Word {{ wordsCompleted }} of {{ maxWords }}</p>
+          </div>
+        </div>
+        
+        <!-- Game complete screen -->
+        <div class="game-complete" v-else-if="gameComplete">
+          <div class="confetti-container">
+            <div v-for="i in 50" :key="i" class="confetti" :style="getRandomConfettiStyle()"></div>
+          </div>
+          
+          <h2>Amazing job, {{ currentPlayer }}!</h2>
+          <div class="trophy">🏆</div>
+          <p class="congratulation-message">
+            You completed all {{ maxWords }} words in {{ getDifficultyLabel() }} mode!
+            <br>Your final score is {{ score }} out of {{ maxWords }}.
+          </p>
+          
+          <button @click="resetGame" class="play-again-btn">
+            Play Again
+          </button>
+        </div>
+        
+        <div class="loading" v-else>
+          <p>Loading a new word for you, {{ currentPlayer }}...</p>
+          <div class="spinner"></div>
+        </div>
+        
+        <!-- Scoreboard Component -->
+        <div class="scoreboard" v-if="currentPlayer && currentDifficulty && !gameComplete">
+          <h3>{{ currentPlayer }}'s Score: {{ score }}</h3>
+          <div class="stars">
+            <span 
+              v-for="n in maxWords" 
+              :key="n" 
+              class="star"
+              :class="{ 'filled': n <= score }"
+            >
+              ★
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Word lists to use instead of API calls
+    const wordLists = {
+      easy: [ "apple", "ant", "baby", "ball", "bed", "bird", "boat", "book", "box", "bug", "car", "chair", "cow", "cup", "door",
+        "duck", "egg", "fish", "flower", "foot", "girl", "hand", "hat", "hill", "horse", "jar", "kite", "leaf", "lion", "milk",
+        "moon", "net", "nut", "owl", "pen", "pig", "pot", "rat", "ring", "sheep", "shoe", "sun", "train", "tree", "wall", "x-ray",
+        "yarn", "zebra", "king", "queen", "jump", "quick", "zoom", "vest", "mask", "nest", "brush", "clown", "drum", "flute",
+        "grape", "honey", "ink", "joke", "key", "lamp", "mop", "nose", "ocean", "piano", "quilt", "rock", "sand", "turtle",
+        "umbrella", "vine", "whale", "ax", "yard", "zip", "bell", "cake", "dog", "elf", "frog", "glue", "ice", "juice",
+        "knee", "lemon", "mouse", "nail", "orange", "pizza", "quack", "rain", "snake", "tooth", "unicorn", "violin", "wind",
+        "fox", "yellow",  "bike", "cat", "doll", "feather", "goat", "heart", "igloo", "kangaroo", "lock", "monkey",
+        "noodle", "penguin", "quicksand", "river", "star", "tiger", "vegetable", "wolf", "yak", "zipper", "angel", "bubble",
+        "cloud", "dinosaur", "eagle", "fire", "goose", "hippo", "island", "jelly", "kitten", "lizard", "mountain",
+        "notebook", "parrot", "quarter", "rocket", "snow", "teapot", "vase", "windmill", "xylophone", "yoyo", "zigzag",
+        "arm", "bat", "chicken", "deer", "elephant", "flag",  "house", "insect",  "knight", "lighthouse", "mango",
+        "needle", "octopus", "pancake",  "tractor", "volcano", "water", "banana", "dress", "giraffe", "hammer", "jacket", "kiwi", 
+        "ladder", "mushroom", "night", "owl", "peacock", "raisin", "television", "wood", "beetle", "carrot", "envelope", "flamingo", 
+        "glove", "hedgehog", "iron", "jellyfish",  "lobster", "nugget",  "peanut",  "raccoon", "seahorse", "tractor", "wagon"
+      ],
+      hard: [ "horizontal", "vertical", "scientist", "penguin", "elephant", "rhinoceros", "mountain", "dolphin", "universe", "astronaut", "sunflower", 
+      "magician", "scarecrow", "butterfly", "calculator", "circumference", "equivalent", "experience", "chimpanzee", "alligator", "dictionary", 
+      "adventure", "character", "structure", "delicious", "importance", "neighbour", "caterpillar", "environment", "convenient", "celebrate", 
+      "precious", "skyscraper", "dinosaur", "restaurant", "parliament", "definitely", "knowledge", "mysterious", "terrarium", "participate", 
+      "chocolate", "adjective", "sugarplum", "crocodile", "grasshopper", "construction", "observatory", "opportunity", "performance", 
+      "vegetarian", "parachute", "university", "earthquake", "watermelon", "helicopter", "compassionate", "volunteer", "thunderstorm", 
+      "neighborhood", "waterfall", "ballerina", "carnivore", "vocabulary", "headphones", "biodiversity", "century", "millennium", "curiosity", 
+      "habitat", "predator", "preparation", "marshmallow", "geography", "photosynthesis", "cylinder", "rectangle", "banister", "celestial", 
+      "exploration", "starfish", "seahorse", "geometry", "elementary", "hollow", "mosquito", "coconut", "phenomenon", "hemisphere", 
+      "alphabetical", "bilingual", "gorilla", "predator", "emperor", "mermaid", "reptile", "speckled", "umbrella", "dandelion", "muffin", 
+      "flamingo", "jackrabbit", "volcano", "wilderness", "handsome", "encourage", "rainforest", "brilliant", "grassland", "marshland",
+      "vegetable", "drought", "challenger", "invitation", "congratulate", "separate", "pomegranate", "tarantula", "dressing", "ponytail", 
+      "execution", "sculpture", "cucumber", "fascinate", "judgment", "literature", "headquarter", "unbelievable", "tablespoon", "compliment", 
+      "cardiology", "expensive", "motorcycle", "experiment", "entertainment", "presidential", "rhinestone", "fantastic", "surround", 
+      "imagination", "vegetation", "cherish", "anatomy", "ostrich", "violin", "helix", "equator", "satellite", "horizon", "zipper",
+      "quotation", "exceptional", "orchid", "toucan", "strawberry", "kiwi", "acoustic", "radiant", "blossom", "passionate", "eclipse", 
+      "veterinary", "revolution", "xylophone", "giraffe", "zucchini", "equilibrium", "therefore", "xylophonist", "essentially", 
+      "quadrilateral", "microscope", "appreciation", "extraordinary", "biography", "responsibility", "optimistic", "boulevard", "macaroni", 
+      "gingerbread", "pepperoni", "quicksand", "xylography", "rhombus", "circulatory", "sunscreen", "knowledgeable", "realization", 
+      "motorboat", "laundry", "hedgehog", "postcard", "magnificent", "candycane", "watercolor", "geologist", "chimpanzee", "vegetable", 
+      "dandelion", "iguana", "whirlwind", "waterfall", "exhibition", "understandable", "exterminate", 
+      "cardiovascular", "underground", "thermometer", "archaeology", "abbreviation", "handkerchief", "snowflake", "lighthouse", "biscuit", 
+      "weatherman", "handwriting", "doughnut", "buttercup"
+    ]
+    };
+    
+    // Main Vue app
+    new Vue({
+      el: '#app',
+      data: {
+        currentPlayer: null,
+        currentDifficulty: null,
+        score: 0,
+        currentWord: '',
+        displayWord: [],
+        missingIndices: [],
+        letterOptions: [],
+        selectedLetters: [],
+        userAnswer: [],
+        feedbackMessage: '',
+        isCorrect: false,
+        showNextButton: false,
+        wordsCompleted: 0,
+        maxWords: 5,
+        gameComplete: false,
+        gameMessages: []
+      },
+      computed: {
+        gameMessage() {
+          return this.gameMessages[Math.floor(Math.random() * this.gameMessages.length)];
+        },
+        isWordComplete() {
+          return !this.displayWord.includes('_');
+        },
+        hasFilled() {
+          return this.selectedLetters.length > 0 && !this.isWordComplete;
+        }
+      },
+      methods: {
+        getDifficultyLabel() {
+          return this.currentDifficulty === 'easy' ? 'Easy Level' : 'Hard Level';
+        },
+        
+        selectPlayer(playerName) {
+          this.currentPlayer = playerName;
+          // Update game messages with player name
+          this.gameMessages = [
+            `Let's spell some words, ${playerName}!`,
+            `You're doing great, ${playerName}!`,
+            `Keep it up, ${playerName}!`,
+            `You're a spelling superstar, ${playerName}!`,
+            `Let's see if you can spell this one, ${playerName}!`
+          ];
+        },
+        
+        selectDifficulty(difficulty) {
+          this.currentDifficulty = difficulty;
+          this.loadNewWord();
+        },
+        
+        resetGame() {
+          this.currentDifficulty = null;
+          this.score = 0;
+          this.wordsCompleted = 0;
+          this.gameComplete = false;
+        },
+        
+        loadNewWord() {
+          // Reset state for new word
+          this.feedbackMessage = '';
+          this.isCorrect = false;
+          this.showNextButton = false;
+          this.selectedLetters = [];
+          this.userAnswer = [];
+          
+          // Get a random word from the appropriate list
+          const wordList = wordLists[this.currentDifficulty];
+          const randomIndex = Math.floor(Math.random() * wordList.length);
+          this.currentWord = wordList[randomIndex].toLowerCase();
+          
+          // Create the word puzzle
+          this.createWordPuzzle();
+          
+          // Generate letter options
+          this.generateLetterOptions();
+          
+          // Play the word sound automatically after a short delay
+          setTimeout(() => {
+            this.playWordAudio();
+          }, 500);
+        },
+        
+        createWordPuzzle() {
+          // Create an array of letters from the word
+          const letters = this.currentWord.split('');
+          
+          // Determine how many letters to hide (between 2 and 4 based on word length)
+          const numMissingLetters = Math.min(
+            Math.max(2, Math.floor(this.currentWord.length / 2)),
+            4
+          );
+          
+          // Randomly select indices of letters to hide
+          this.missingIndices = [];
+          while (this.missingIndices.length < numMissingLetters) {
+            const randomIndex = Math.floor(Math.random() * this.currentWord.length);
+            if (!this.missingIndices.includes(randomIndex)) {
+              this.missingIndices.push(randomIndex);
+            }
+          }
+          
+          // Create display word with blanks
+          this.displayWord = letters.map((letter, index) => 
+            this.missingIndices.includes(index) ? '_' : letter
+          );
+          
+          // Initialize userAnswer with empty spaces for missing letters
+          this.userAnswer = this.displayWord.map(letter => letter);
+        },
+        
+        generateLetterOptions() {
+          // Get the missing letters with appropriate counts for repeated letters
+          const missingLetters = [];
+          this.missingIndices.forEach(index => {
+            missingLetters.push(this.currentWord[index]);
+          });
+          
+          // Add some distractor letters (based on difficulty)
+          const distractorCount = this.currentDifficulty === 'easy' ? 3 : 5;
+          const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+          const distractors = [];
+          
+          while (distractors.length < distractorCount) {
+            const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+            if (!missingLetters.includes(randomLetter) && !distractors.includes(randomLetter)) {
+              distractors.push(randomLetter);
+            }
+          }
+          
+          // Combine and shuffle options
+          this.letterOptions = [...missingLetters, ...distractors];
+          this.shuffleArray(this.letterOptions);
+        },
+        
+        shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+        },
+        
+        selectLetter(letter) {
+          // Find the first blank position
+          const blankIndex = this.displayWord.indexOf('_');
+          if (blankIndex !== -1) {
+            // Update display word and user answer
+            const updatedDisplayWord = [...this.displayWord];
+            updatedDisplayWord[blankIndex] = letter;
+            this.displayWord = updatedDisplayWord;
+            
+            // Update user answer
+            this.userAnswer[blankIndex] = letter;
+            
+            // Count how many times this letter appears in letter options
+            const letterCount = this.letterOptions.filter(l => l === letter).length;
+            
+            // Count how many times this letter has been selected already
+            const selectedCount = this.selectedLetters.filter(l => l === letter).length;
+            
+            // Only disable the letter option if all instances have been used
+            if (selectedCount + 1 >= letterCount) {
+              // Add to selected letters to disable it in the UI
+              this.selectedLetters.push(letter);
+            } else {
+              // If we'll need this letter again, track that we used it but don't disable
+              this.selectedLetters.push(letter + '_' + selectedCount); // Add unique identifier
+            }
+          }
+        },
+        
+        removeLetter(index) {
+          // Only allow removing letters that were placed by the player (missing indices)
+          if (this.missingIndices.includes(index) && this.displayWord[index] !== '_') {
+            const letterToRemove = this.displayWord[index];
+            
+            // Update display word to show blank again
+            const updatedDisplayWord = [...this.displayWord];
+            updatedDisplayWord[index] = '_';
+            this.displayWord = updatedDisplayWord;
+            
+            // Update user answer
+            this.userAnswer[index] = '_';
+            
+            // Remove this letter from selected letters to make it available again
+            const letterIndex = this.selectedLetters.findIndex(l => 
+              l === letterToRemove || l.startsWith(letterToRemove + '_')
+            );
+            
+            if (letterIndex !== -1) {
+              this.selectedLetters.splice(letterIndex, 1);
+            }
+          }
+        },
+        
+        isLetterDisabled(letter) {
+          // Count how many times this letter appears in the current word
+         //const letterInWord = this.currentWord.split('').filter(l => l === letter).length;
+          
+          // Count how many of this letter are missing in the puzzle
+          const letterMissing = this.missingIndices.filter(index => this.currentWord[index] === letter).length;
+          
+          // Count how many times this letter has already been selected
+          const letterSelectedCount = this.selectedLetters.filter(l => l === letter || l.startsWith(letter + '_')).length;
+          
+          // Disable if all instances of the letter have been used
+          if( letterSelectedCount ==0){
+            return false;
+          } else {
+            return letterSelectedCount >= letterMissing;
+          }
+        },
+        
+        checkAnswer() {
+          // Compare user answer with correct word
+          const userWord = this.userAnswer.join('');
+          const isCorrect = userWord === this.currentWord;
+          
+          // Update feedback and score
+          if (isCorrect) {
+            this.feedbackMessage = `That's correct, ${this.currentPlayer}! The word is "${this.currentWord}"!`;
+            this.isCorrect = true;
+            this.score++;
+          } else {
+            this.feedbackMessage = `Oops! The correct word is "${this.currentWord}". Try again!`;
+            this.isCorrect = false;
+          }
+          
+          // Increment words completed counter
+          this.wordsCompleted++;
+          
+          // Show next button if not at max words yet
+          if (this.wordsCompleted < this.maxWords) {
+            this.showNextButton = true;
+          } else {
+            // If this was the last word, show completion screen after a delay
+            setTimeout(() => {
+              this.gameComplete = true;
+            }, 2000);
+          }
+        },
+        
+        nextWord() {
+          this.loadNewWord();
+        },
+        
+        playWordAudio() {
+          // Use browser's speech synthesis
+          if ('speechSynthesis' in window) {
+            const speech = new SpeechSynthesisUtterance(this.currentWord);
+            speech.rate = 0.8; // Slightly slower for kids
+            window.speechSynthesis.speak(speech);
+          }
+        },
+        
+        getRandomConfettiStyle() {
+          const colors = ['#4b8bf4', '#ff7e67', '#67c23a', '#ffd700', '#9c27b0', '#ff5722'];
+          const randomColor = colors[Math.floor(Math.random() * colors.length)];
+          
+          return {
+            '--color': randomColor,
+            '--opacity': Math.random() * 0.5 + 0.5,
+            '--rotation': Math.random() * 360 + 'deg',
+            '--translate-x': (Math.random() * 500 - 250) + 'px',
+            '--translate-y': (Math.random() * 300 + 100) + 'px',
+            '--fall-duration': (Math.random() * 3 + 2) + 's',
+            '--fall-delay': (Math.random() * 5) + 's',
+            top: Math.random() * 100 + '%',
+            left: Math.random() * 100 + '%'
+          };
+        }
+      }
+    });
+  </script>
+</body>
+</html>
