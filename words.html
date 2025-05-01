@@ -528,7 +528,7 @@
 </head>
 <body>
   <div id="app">
-<!--     <header>
+    <!-- <header>
       <h1>Word Wizard</h1>
       <h2>A Fun Spelling Adventure!</h2>
     </header> -->
@@ -967,8 +967,14 @@
             this.feedbackMessage = `That's correct, ${this.currentPlayer}! The word is "${this.currentWord}"!`;
             this.isCorrect = true;
             this.score++;
+            this.playSuccessAudio();
+            setTimeout(() => {
+              this.nextWord();
+            }, 2000);
+            
           } else {
             this.feedbackMessage = `Oops! The correct word is "${this.currentWord}". Try again!`;
+            this.playFailedAudio();
             this.isCorrect = false;
           }
           
@@ -982,6 +988,7 @@
             // If this was the last word, show completion screen after a delay
             setTimeout(() => {
               this.gameComplete = true;
+              this.playWinnerAudio();
             }, 2000);
           }
         },
@@ -998,7 +1005,48 @@
             window.speechSynthesis.speak(speech);
           }
         },
-        
+
+        playSuccessAudio() {
+          // Use browser's speech synthesis
+          if ('speechSynthesis' in window) {
+            if (this.currentPlayer === 'Ibby') {
+              const speech = new SpeechSynthesisUtterance(`That's correct Eebby`);
+              speech.rate = 0.8; // Slightly slower for kids
+              window.speechSynthesis.speak(speech);
+            } else {
+              const speech = new SpeechSynthesisUtterance(`That's correct ${this.currentPlayer}`);
+              speech.rate = 0.8; // Slightly slower for kids
+              window.speechSynthesis.speak(speech);
+            }
+            
+          }
+        },
+
+        playFailedAudio() {
+          // Use browser's speech synthesis
+          if ('speechSynthesis' in window) {
+            const speech = new SpeechSynthesisUtterance(`Oops! Oh No!`);
+            speech.rate = 0.8; // Slightly slower for kids
+            window.speechSynthesis.speak(speech);
+          }
+        },
+
+        playWinnerAudio() {
+          // Use browser's speech synthesis
+          if ('speechSynthesis' in window) {
+            if (this.currentPlayer === 'Ibby') {
+              const speech = new SpeechSynthesisUtterance(`Yeah, Good Job Eebby, Congratulations!`);
+              speech.rate = 0.8; // Slightly slower for kids
+              window.speechSynthesis.speak(speech);
+            } else {
+              const speech = new SpeechSynthesisUtterance(`Yeah, Good Job ${this.currentPlayer}, Congratulations!`);
+              speech.rate = 0.8; // Slightly slower for kids
+              window.speechSynthesis.speak(speech);
+            }
+            
+          }
+        },
+
         getRandomConfettiStyle() {
           const colors = ['#4b8bf4', '#ff7e67', '#67c23a', '#ffd700', '#9c27b0', '#ff5722'];
           const randomColor = colors[Math.floor(Math.random() * colors.length)];
